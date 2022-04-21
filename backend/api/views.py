@@ -1,9 +1,12 @@
+from core import pdf
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import (Favorite, Ingredient, IngredientRecipeRelation,
+                            Recipe, ShoppingCart, Subscription, Tag)
 from rest_framework import generics, mixins, permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView, Response
@@ -15,9 +18,6 @@ from api.serializers import (IngredientSerializer,
                              RecipeCreateUpdateSerializer,
                              RecipeSerializerList, RecipeShortSerilizer,
                              SubscriptionListSerializer, TagSerializer)
-from core import pdf
-from recipes.models import (Favorite, Ingredient, IngredientRecipeRelation,
-                            Recipe, ShoppingCart, Subscription, Tag)
 
 User = get_user_model()
 
