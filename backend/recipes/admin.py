@@ -1,44 +1,70 @@
 from django.contrib import admin
+from sorl.thumbnail.admin import AdminImageMixin
 
-from .models import Amount, Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from recipes.models import (Favorite, Ingredient, IngredientRecipeRelation,
+                            Recipe, ShoppingCart, Subscription, Tag)
 
 
-@admin.register(Recipe)
-class RecipeAdmin(admin.ModelAdmin):
+class FavoriteAdmin(admin.ModelAdmin):
+    readonly_fields = ('created',)
+
+
+class SubscriptionAdmin(admin.ModelAdmin):
+    readonly_fields = ('created',)
+
+
+class ShoppingCartAdmin(admin.ModelAdmin):
+    readonly_fields = ('created',)
+
+
+class IngredientRecipeRelationAdminInline(admin.TabularInline):
+    model = IngredientRecipeRelation
+    extra = 3
+
+
+class RecipeAdmin(AdminImageMixin, admin.ModelAdmin):
+    list_display = ('name', 'author')
+    search_fields = ('name', 'author__username', 'author__last_name',
+                     'tags__name', 'tags__slug', 'author__first_name')
+    inlines = (IngredientRecipeRelationAdminInline,)
+
     fieldsets = (
-        ('Избранное', {
-            'classes': ('collapse',),
-            'fields': ['favorites_count'],
+        ('Основнвые данные', {
+            'fields': (
+                'name', 'author', 'image', 'tags'
+            )
         }),
-        (None, {
-            'fields': ['name', 'text', 'cooking_time', 'image', 'ingredients',
-                       'tags']
+        ('Информация', {
+            'fields': (
+                'favorite_count', 'shoppingcart_count'
+            )
         }),
-        ('Изменить автора', {
-            'classes': ('collapse',),
-            'fields': ['author'],
+        ('Приготовление', {
+            'fields': (
+                'text', 'cooking_time',
+            )
         }),
     )
-    readonly_fields = ('favorites_count',)
-    list_display = ('id', 'name', 'author')
-    list_display_links = ('id', 'name')
-    search_fields = ('name', 'author__username')
-    list_filter = ('tags', 'author')
+    readonly_fields = ('favorite_count', 'shoppingcart_count')
 
-    def favorites_count(self, instance):
-        return Favorite.objects.filter(recipe=instance).count()
+    def favorite_count(self, obj):
+        return obj.favorites.count()
 
-    favorites_count.short_description = 'Добавлен в избранное'
+    def shoppingcart_count(self, obj):
+        return obj.shopping_cart.count()
 
-
-@admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'measurement_unit')
-    list_display_links = ('id', 'name')
-    search_fields = ('name__icontains',)
+    favorite_count.short_description = 'В избранном'
+    shoppingcart_count.short_description = 'В списке покупок'
 
 
-admin.site.register(Amount)
-admin.site.register(Favorite)
-admin.site.register(ShoppingCart)
+class IngredeintAdmin(admin.ModelAdmin):
+    search_fields = ('name',)
+    list_display = ('name', 'measurement_unit')
+
+
+admin.site.register(Ingredient, IngredeintAdmin)
+admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Tag)
+admin.site.register(Subscription, SubscriptionAdmin)
+admin.site.register(ShoppingCart, ShoppingCartAdmin)
+admin.site.register(Favorite, FavoriteAdmin)

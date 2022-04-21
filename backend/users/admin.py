@@ -1,23 +1,41 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
-from .models import Subscription, User
+from users.forms import UserChangeForm, UserCreationForm
+from users.models import CustomUser
 
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(UserAdmin):
+    add_form = UserCreationForm
+    form = UserChangeForm
+    model = CustomUser
+    list_display = (
+        'email', 'is_staff', 'is_active',
+    )
+    list_filter = (
+        'is_staff', 'is_active'
+    )
     fieldsets = (
         (None, {
-            'fields': [('email', 'first_name'), ('username', 'last_name')]
+            'fields': (
+                'username', 'first_name', 'last_name', 'email', 'password',
+            )
         }),
-        ('Права доступа', {
-            'classes': ('collapse',),
-            'fields': [('is_staff', 'is_superuser')],
+        ('Права', {
+            'fields': (
+                'is_staff', 'is_active',
+            )
         }),
     )
-    list_display = ('id', 'email', 'username', 'first_name', 'last_name')
-    list_display_links = ('id', 'email', 'username')
-    search_fields = ('email', 'username')
-    list_filter = ('email', 'username')
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': (
+                'username', 'first_name', 'last_name', 'email', 'password1',
+                'password2', 'is_staff', 'is_active')}
+         ),
+    )
+    search_fields = ('email', 'first_name', 'last_name')
 
 
-admin.site.register(Subscription)
+admin.site.register(CustomUser, CustomUserAdmin)
