@@ -9,7 +9,7 @@
 ![Image](https://github.com/mBIGfly/foodgram-project-react/raw/master/backend/static/foodgram.jpg)
 
 ## Проект доступен на сервере:
-### http://foodgram-project.sytes.net/
+### http://
 
 ## Наполнение env-файла:
 
