@@ -1,7 +1,6 @@
-FROM python:3.9-slim
+FROM python:3.7-slim
 WORKDIR /app
 COPY requirements.txt .
-RUN apt update && apt install -y libpq-dev gcc
-RUN pip install -r requirements.txt --no-cache-dir
-COPY . .
-CMD ["bash", "./entrypoint.sh"]
+RUN pip3 install -r requirements.txt --no-cache-dir
+COPY . /app
+CMD ["gunicorn", "foodgram.wsgi:application", "--bind", "0:8000" ]

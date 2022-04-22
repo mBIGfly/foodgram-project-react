@@ -1,39 +1,25 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from api.views import (FavoriteManageView, IngredientViewSet,
-                       ListFollowViewSet, RecipeViewSet,
-                       ShoppingCartManageView, SubscriptionsManageView,
-                       TagViewSet, download_shopping_cart)
-
-app_name = 'api'
+from .views import (FavoriteShoppingCartView, IngredientsViewSet,
+                    RecipesViewSet, TagsViewSet)
 
 router = routers.DefaultRouter()
-
-router.register('ingredients', IngredientViewSet, basename='ingredients')
-router.register('recipes', RecipeViewSet, basename='recipes')
-router.register('tags', TagViewSet, basename='tags')
-
-subscriptions_urlpatterns = [
-    path('subscriptions/', ListFollowViewSet.as_view(), name='subscriptions'),
-    path(
-        '<int:pk>/subscribe/', SubscriptionsManageView.as_view(),
-        name='subscribe'),
-]
-recipe_additional_urlpatterns = [
-    path(
-        'download_shopping_cart/', download_shopping_cart,
-        name='download_shopping_cart'),
-    path(
-        '<int:pk>/shopping_cart/', ShoppingCartManageView.as_view(),
-        name='shopping_cart'),
-    path('<int:pk>/favorite/', FavoriteManageView.as_view(), name='favorites'),
-]
+router.register(r'ingredients', IngredientsViewSet, basename='ingredients')
+router.register(r'tags', TagsViewSet, basename='tags')
+router.register(r'recipes', RecipesViewSet, basename='recipes')
 
 urlpatterns = [
-    path('recipes/', include(recipe_additional_urlpatterns)),
-    path('users/', include(subscriptions_urlpatterns)),
-    path('', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
+    path(
+        'recipes/<recipe_id>/favorite/',
+        FavoriteShoppingCartView.as_view(),
+        name='favorite'
+    ),
+    path(
+        'recipes/<recipe_id>/shopping_cart/',
+        FavoriteShoppingCartView.as_view(),
+        name='shopping_cart'
+    ),
+    path('', include('users.urls')),
     path('', include(router.urls)),
 ]

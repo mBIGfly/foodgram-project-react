@@ -1,41 +1,23 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 
-from users.forms import UserChangeForm, UserCreationForm
-from users.models import CustomUser
+from .models import Subscription, User
 
 
-class CustomUserAdmin(UserAdmin):
-    add_form = UserCreationForm
-    form = UserChangeForm
-    model = CustomUser
-    list_display = (
-        'email', 'is_staff', 'is_active',
-    )
-    list_filter = (
-        'is_staff', 'is_active'
-    )
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-            'fields': (
-                'username', 'first_name', 'last_name', 'email', 'password',
-            )
+            'fields': [('email', 'first_name'), ('username', 'last_name')]
         }),
-        ('Права', {
-            'fields': (
-                'is_staff', 'is_active',
-            )
+        ('Права доступа', {
+            'classes': ('collapse',),
+            'fields': [('is_staff', 'is_superuser')],
         }),
     )
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': (
-                'username', 'first_name', 'last_name', 'email', 'password1',
-                'password2', 'is_staff', 'is_active')}
-         ),
-    )
-    search_fields = ('email', 'first_name', 'last_name')
+    list_display = ('id', 'email', 'username', 'first_name', 'last_name')
+    list_display_links = ('id', 'email', 'username')
+    search_fields = ('email', 'username')
+    list_filter = ('email', 'username')
 
 
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Subscription)
