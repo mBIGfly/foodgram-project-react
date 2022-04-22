@@ -74,7 +74,7 @@ jobs:
         with:
           context: ./frontend/
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/}/foodgram_project_frontend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_project_frontend:latest
 
   deploy:
     name: Deploy image on production server
