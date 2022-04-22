@@ -50,7 +50,7 @@ jobs:
   Backend_build_and_push_to_docker_hub:
     name: Push Docker image "backend" to Docker Hub
     runs-on: ubuntu-latest
-    needs: tests
+    needs: Frontend_build_and_push_to_docker_hub
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
