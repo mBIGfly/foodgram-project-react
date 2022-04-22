@@ -14,7 +14,7 @@ services:
       - frontend_value:/app/result_build/build/
 
   backend:
-    image: mbigfly/foodgram_project:latest    
+    image: mbigfly/foodgram_project:latest
     restart: always
     volumes:
       - static_backend_value:/app/static/
@@ -42,3 +42,4 @@ volumes:
   static_backend_value:
   frontend_value:
   media_value:
+  logs_value:
