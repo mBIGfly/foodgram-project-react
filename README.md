@@ -13,7 +13,7 @@
 
 API доступно по адресу: http://mbfly.ddns.net/api/
 
-Документация к API: http://mbfly.ddns.net/api/redoc/
+# Документация к API: http://mbfly.ddns.net/api/docs/
 
 ## Наполнение env-файла:
 
