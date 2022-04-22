@@ -2,66 +2,22 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class User(AbstractUser):
-    username = models.CharField(
-        max_length=150,
-        unique=True,
-        verbose_name='Логин'
-    )
+class CustomUser(AbstractUser):
     email = models.EmailField(
-        max_length=254,
-        unique=True,
-        verbose_name='Email'
-    )
+        'Email', unique=True, max_length=254,
+        help_text='Введите действительный адрес, он нужен для уведомлений')
+    username = models.CharField(
+        'Имя пользователя', max_length=150, unique=True,
+        help_text='Будет отображаться на сайте')
     first_name = models.CharField(
-        max_length=150,
-        verbose_name='Имя'
-    )
+        'Имя', max_length=150)
     last_name = models.CharField(
-        max_length=150,
-        verbose_name='Фамилия'
-    )
-    is_subscribed = models.BooleanField('Подписка', default=False)
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+        'Фамилия', max_length=150)
 
     class Meta:
-        ordering = ('username',)
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['username', 'email'],
-                name='unique_username_email'
-            )
-        ]
+        ordering = ('id', )
+        verbose_name = 'пользователя'
+        verbose_name_plural = 'пользователи'
 
     def __str__(self):
-        return self.username
-
-
-class Subscription(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='subscriber'
-    )
-    subscribe = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='subscribing'
-    )
-
-    class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'subscribe'],
-                name='unique_subscription'
-            )
-        ]
-
-    def __str__(self):
-        return f'{self.user.username} - {self.subscribe.username}'
+        return f'{self.first_name} {self.last_name}'
