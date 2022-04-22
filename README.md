@@ -9,7 +9,11 @@
 ![Image](https://github.com/mBIGfly/foodgram-project-react/raw/master/backend/static/foodgram.jpg)
 
 ## Проект доступен на сервере:
-### http://
+Адрес сайта проекта: http://mbfly.ddns.net/
+
+API доступно по адресу: http://mbfly.ddns.net/api/
+
+Документация к API: http://mbfly.ddns.net/api/redoc/
 
 ## Наполнение env-файла:
 

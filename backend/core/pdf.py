@@ -1,8 +1,7 @@
 import os
 
-from fpdf import FPDF
-
 from foodgram.settings import BASE_DIR
+from fpdf import FPDF
 
 
 class Constant:
