@@ -17,7 +17,7 @@ services:
     image: mbigfly/foodgram_project:latest
     restart: always
     volumes:
-      - static_value:/app/static/
+      - static_backend_value:/app/static/
       - media_value:/app/media/
     depends_on:
       - db
@@ -32,7 +32,7 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - frontend_value:/var/html/frontend/
       - ./docs/:/var/html/frontend/api/docs/
-      - static_value:/var/html/static_backend/
+      - static_backend_value:/var/html/static_backend/
       - media_value:/var/html/media/
 
     depends_on:
