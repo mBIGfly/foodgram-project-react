@@ -1,16 +1,13 @@
-import base64
-import mimetypes
-
 import djoser.serializers
 from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from recipes.models import (Favorite, Ingredient, IngredientRecipeRelation,
+                            Recipe, ShoppingCart, Subscription, Tag)
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 
-from recipes.models import (Favorite, Ingredient, IngredientRecipeRelation,
-                            Recipe, ShoppingCart, Subscription, Tag)
+from api.fields import ImageBase64Field
 
 User = get_user_model()
 
@@ -73,7 +70,7 @@ class RecipeSerializerList(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
-    def __is_something(self, obj, model):
+    def __is_recipe(self, obj, model):
         if not self.context['request'].user.is_authenticated:
             return False
 
@@ -81,10 +78,10 @@ class RecipeSerializerList(serializers.ModelSerializer):
             recipe=obj, user=self.context['request'].user).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        return self.__is_something(obj, ShoppingCart)
+        return self.__is_recipe(obj, ShoppingCart)
 
     def get_is_favorited(self, obj):
-        return self.__is_something(obj, Favorite)
+        return self.__is_recipe(obj, Favorite)
 
     def get_ingredients(self, obj):
         return IngredientRecipeRelationSerializer(
@@ -103,20 +100,6 @@ class RecipeCreateIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'amount')
         model = IngredientRecipeRelation
-
-
-class ImageBase64Field(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            mime_data, image_string = data.split(';base64,')
-            image_data = base64.b64decode(image_string)
-
-            mime_type = mime_data.removeprefix('data:')
-            extension = mimetypes.MimeTypes().guess_extension(mime_type)
-
-            data = ContentFile(image_data, name=f'temp.{extension}')
-
-        return super().to_internal_value(data)
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -151,7 +134,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
-    def __is_something(self, obj, model):
+    def __is_recipe(self, obj, model):
         if not self.context['request'].user.is_authenticated:
             return False
 
@@ -159,10 +142,16 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             recipe=obj, user=self.context['request'].user).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        return self.__is_something(obj, ShoppingCart)
+        return self.__is_recipe(obj, ShoppingCart)
 
     def get_is_favorited(self, obj):
-        return self.__is_something(obj, Favorite)
+        return self.__is_recipe(obj, Favorite)
+
+    def ingredient_in_ingredients(self, recipe, ingredient):
+        IngredientRecipeRelation.objects.create(
+            recipe, ingredient=ingredient['ingredient'],
+            amount=ingredient['amount']
+        ).save()
 
     @transaction.atomic
     def create(self, validated_data):
@@ -170,25 +159,28 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
 
         obj = Recipe.objects.create(**validated_data)
-        obj.save()
 
         obj.tags.set(tags)
 
         for ingredient in ingredients:
-            IngredientRecipeRelation.objects.create(
-                recipe=obj, ingredient=ingredient['ingredient'],
-                amount=ingredient['amount']
-            ).save()
+            recipe = obj
+            self.ingredient_in_ingredients(recipe, ingredient)
 
         return obj
 
     def validate(self, data):
-        keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
+        keys = ('id', 'ingredients', 'tags', 'text', 'name', 'cooking_time')
 
         errors = {}
 
+        if id in keys:
+            errors.update({'Ингредиент в рецепте не должен повторяться.'})
+
         for key in keys:
-            if key not in data:
+            if key in data and key < 1:
+                errors.update({key: 'Кол-во не может быть меньше 1'})
+
+            else:
                 errors.update({key: 'Обязательное поле'})
 
         if errors:
@@ -202,17 +194,15 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
 
         for field, value in validated_data.items():
-            setattr(instance, field, value)
+            super().update(instance, field, value)
 
         instance.tags.set(tags)
         instance.image = validated_data.get('image', instance.image)
 
         instance.ingredients.clear()
         for ingredient in ingredients:
-            IngredientRecipeRelation.objects.create(
-                recipe=instance, ingredient=ingredient['ingredient'],
-                amount=ingredient['amount']
-            ).save()
+            recipe = instance
+            self.ingredient_in_ingredients(recipe, ingredient)
 
         return super().update(instance, validated_data)
 

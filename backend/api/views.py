@@ -1,30 +1,24 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, mixins, permissions, status, viewsets
+from recipes.models import (Favorite, Ingredient, IngredientRecipeRelation,
+                            Recipe, ShoppingCart, Subscription, Tag)
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView, Response
 
 from api.filters import IngredientsSearchFilter, RecipeFilter
+from api.mixins import ListRetrieveViewSet
 from api.pagination import CustomPageNumberPagination
+from api.pdf_utils import make_pdf
 from api.permissions import RecipePermissions
 from api.serializers import (IngredientSerializer,
                              RecipeCreateUpdateSerializer,
                              RecipeSerializerList, RecipeShortSerilizer,
                              SubscriptionListSerializer, TagSerializer)
-from core import pdf
-from recipes.models import (Favorite, Ingredient, IngredientRecipeRelation,
-                            Recipe, ShoppingCart, Subscription, Tag)
 
 User = get_user_model()
-
-
-class ListRetrieveViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
-                          mixins.RetrieveModelMixin):
-    permission_classes = (permissions.AllowAny,)
 
 
 class TagViewSet(ListRetrieveViewSet):
@@ -66,7 +60,7 @@ class SubscriptionsManageView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get('pk')
 
         author = get_object_or_404(User, pk=pk)
         user = request.user
@@ -90,7 +84,7 @@ class SubscriptionsManageView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get('pk')
 
         user = request.user
         author = get_object_or_404(User, id=pk)
@@ -115,38 +109,6 @@ class ListFollowViewSet(generics.ListAPIView):
         return User.objects.filter(subscripters__user=user)
 
 
-def make_pdf(header, data, filename, http_status):
-    site_name = settings.SITE_NAME
-
-    pdf_data = [
-        (pdf.Constant.DT_CAPTION, 'Мой список покупок:'),
-        (pdf.Constant.DT_EMPTYLINE, '')
-    ]
-
-    for ingredient in data:
-        pdf_data.append((
-            pdf.Constant.DT_TEXT,
-            '□ {name} - {amount} {unit}'.format(
-                name=ingredient['ingredient__name'],
-                amount=ingredient['amount'],
-                unit=ingredient['ingredient__measurement_unit']
-            )))
-
-    pdf_obj = pdf.PDFMaker()
-    pdf_obj.data = pdf_data
-    pdf_obj.footer_text = f'Список покупок сгенерирован на сайте {site_name}'
-
-    content = pdf_obj.pdf_render()
-
-    response = HttpResponse(
-        content=content,
-        content_type='application/pdf',
-        status=http_status)
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-
-    return response
-
-
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def download_shopping_cart(request):
@@ -160,7 +122,7 @@ def download_shopping_cart(request):
 
     total_ingredients = ingredients.values(
         'ingredient__name', 'ingredient__measurement_unit').order_by(
-        'ingredient__name').annotate(amount=Sum('amount'))
+        'ingredient__name').annotate(amount_total=Sum('amount'))
 
     return make_pdf(
         ('Наименование', 'Количество', 'Ед.измерения'), total_ingredients,
@@ -176,7 +138,7 @@ class ShoppingCartManageView(APIView):
     }
 
     def post(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get('pk')
 
         recipe = get_object_or_404(Recipe, pk=pk)
         user = request.user
@@ -194,7 +156,7 @@ class ShoppingCartManageView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get('pk')
 
         recipe = get_object_or_404(Recipe, id=pk)
 
