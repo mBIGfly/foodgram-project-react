@@ -1,4 +1,6 @@
 from django.contrib import admin
+from sorl.thumbnail.admin import AdminImageMixin
+
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -8,7 +10,6 @@ from recipes.models import (
     Subscription,
     Tag,
 )
-from sorl.thumbnail.admin import AdminImageMixin
 
 
 class FavoriteAdmin(admin.ModelAdmin):
