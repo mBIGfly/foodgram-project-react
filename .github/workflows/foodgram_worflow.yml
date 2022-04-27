@@ -90,7 +90,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            
+
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_project_frontend:latest
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_project:latest
             sudo docker-compose stop

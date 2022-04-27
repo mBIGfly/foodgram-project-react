@@ -2,8 +2,15 @@ import djoser.serializers
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from recipes.models import (Favorite, Ingredient, IngredientRecipeRelation,
-                            Recipe, ShoppingCart, Subscription, Tag)
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    IngredientRecipeRelation,
+    Recipe,
+    ShoppingCart,
+    Subscription,
+    Tag,
+)
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 
@@ -147,11 +154,12 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         return self.__is_recipe(obj, Favorite)
 
-    def ingredient_in_ingredients(self, recipe, ingredient):
-        IngredientRecipeRelation.objects.create(
-            recipe, ingredient=ingredient['ingredient'],
-            amount=ingredient['amount']
-        ).save()
+    def ingredient_in_ingredients(self, recipe, ingredients):
+        for ingredient in ingredients:
+            IngredientRecipeRelation.objects.create(
+                recipe, ingredient=ingredient['ingredient'],
+                amount=ingredient['amount']
+            ).save()
 
     @transaction.atomic
     def create(self, validated_data):
@@ -162,29 +170,38 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
         obj.tags.set(tags)
 
-        for ingredient in ingredients:
-            recipe = obj
-            self.ingredient_in_ingredients(recipe, ingredient)
+        recipe = obj
+        self.ingredient_in_ingredients(recipe, ingredients)
 
         return obj
 
     def validate(self, data):
-        keys = ('id', 'ingredients', 'tags', 'text', 'name', 'cooking_time')
+        keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
 
         errors = {}
 
-        if id in keys:
-            errors.update({'Ингредиент в рецепте не должен повторяться.'})
-
         for key in keys:
-            if key in data and key < 1:
-                errors.update({key: 'Кол-во не может быть меньше 1'})
-
-            else:
+            if key not in data:
                 errors.update({key: 'Обязательное поле'})
 
         if errors:
             raise serializers.ValidationError(errors, code='field_error')
+
+        ingredients = self.initial_data.get('ingredients')
+        ingredients_set = set()
+        for ingredient in ingredients:
+            if int(ingredient.get('amount')) <= 0:
+                raise serializers.ValidationError(
+                    ('Убедитесь, что значение количества '
+                     'ингредиента больше 0')
+                )
+            id = ingredient.get('id')
+            if id in ingredients_set:
+                raise serializers.ValidationError(
+                    'Ингредиент в рецепте не должен повторяться.'
+                )
+            ingredients_set.add(id)
+        data['ingredients'] = ingredients
 
         return data
 
@@ -193,16 +210,15 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
 
-        for field, value in validated_data.items():
-            super().update(instance, field, value)
+        super().update(instance, validated_data)
 
         instance.tags.set(tags)
         instance.image = validated_data.get('image', instance.image)
 
         instance.ingredients.clear()
-        for ingredient in ingredients:
-            recipe = instance
-            self.ingredient_in_ingredients(recipe, ingredient)
+
+        recipe = instance
+        self.ingredient_in_ingredients(recipe, ingredients)
 
         return super().update(instance, validated_data)
 

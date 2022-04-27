@@ -1,8 +1,15 @@
 from django.contrib import admin
 from sorl.thumbnail.admin import AdminImageMixin
 
-from recipes.models import (Favorite, Ingredient, IngredientRecipeRelation,
-                            Recipe, ShoppingCart, Subscription, Tag)
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    IngredientRecipeRelation,
+    Recipe,
+    ShoppingCart,
+    Subscription,
+    Tag,
+)
 
 
 class FavoriteAdmin(admin.ModelAdmin):

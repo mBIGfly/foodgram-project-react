@@ -16,7 +16,7 @@ def make_pdf(header, data, filename, http_status):
             pdf.Constant.DT_TEXT,
             '□ {name} - {amount} {unit}'.format(
                 name=ingredient['ingredient__name'],
-                amount=ingredient['amount'],
+                amount=ingredient['amount_total'],
                 unit=ingredient['ingredient__measurement_unit']
             )))
 
