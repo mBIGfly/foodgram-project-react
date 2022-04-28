@@ -2,6 +2,10 @@ import djoser.serializers
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+from rest_framework.settings import api_settings
+
+from api.fields import ImageBase64Field
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -11,10 +15,6 @@ from recipes.models import (
     Subscription,
     Tag,
 )
-from rest_framework import serializers
-from rest_framework.settings import api_settings
-
-from api.fields import ImageBase64Field
 
 User = get_user_model()
 

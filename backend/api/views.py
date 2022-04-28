@@ -1,3 +1,11 @@
+from django.contrib.auth import get_user_model
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics, permissions, status, viewsets
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.views import APIView, Response
+
 from api.filters import IngredientsSearchFilter, RecipeFilter
 from api.mixins import ListRetrieveViewSet
 from api.pagination import CustomPageNumberPagination
@@ -11,10 +19,6 @@ from api.serializers import (
     SubscriptionListSerializer,
     TagSerializer,
 )
-from django.contrib.auth import get_user_model
-from django.db.models import Sum
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -24,9 +28,6 @@ from recipes.models import (
     Subscription,
     Tag,
 )
-from rest_framework import generics, permissions, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.views import APIView, Response
 
 User = get_user_model()
 
