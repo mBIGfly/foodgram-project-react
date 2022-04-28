@@ -17,9 +17,10 @@ services:
   backend:
 
     image: mbigfly/foodgram_project:latest
+    domainname: mbfly.ddns.net
     restart: always
     volumes:
-      - static_value:/app/static/
+      - static_backend_value:/app/static/
       - media_value:/app/media/
     depends_on:
       - db
@@ -33,14 +34,14 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - frontend_value:/var/html/frontend/
-      - ./docs/:/var/html/frontend/api/docs/redoc.html
-      - static_value:/var/html/static/
+      - ./docs/:/var/html/frontend/api/docs/
+      - static_backend_value:/var/html/static_backend/
       - media_value:/var/html/media/
 
     depends_on:
       - frontend
       - backend
 volumes:
-  static_value:
+  static_backend_value:
   frontend_value:
   media_value:
