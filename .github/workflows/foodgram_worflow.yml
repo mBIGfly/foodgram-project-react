@@ -56,7 +56,7 @@ jobs:
     name: Deploy image on production server
     runs-on: ubuntu-latest
     needs: backend_build_and_push_to_docker_hub
-    if: always() && github.ref == 'refs/heads/master' && needs.frontend_build_and_push_to_docker_hub.result == 'success'
+    if: always() && github.ref == 'refs/heads/master' && needs.backend_build_and_push_to_docker_hub.result == 'success'
 
     steps:
       - name: executing remote ssh commands to deploy
