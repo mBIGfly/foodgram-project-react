@@ -66,6 +66,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            cd ~/infra/
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_project:latest
             sudo docker-compose stop
             sudo docker-compose rm -f backend frontend
