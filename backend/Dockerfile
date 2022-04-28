@@ -3,5 +3,5 @@ WORKDIR /app
 COPY requirements.txt .
 RUN apt update && apt install -y libpq-dev gcc
 RUN pip install -r requirements.txt --no-cache-dir
-COPY . .
+COPY . /app
 CMD ["bash", "./entrypoint.sh"]
