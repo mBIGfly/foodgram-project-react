@@ -2,7 +2,6 @@
 
 # Проект Foodgram «Продуктовый помощник»
 ![push](https://github.com/mBIGfly/foodgram-project-react/actions/workflows/foodgram_worflow.yml/badge.svg?event=push)
-# https://github.com/mBIGfly/foodgram-project-react/workflows/yamdb_final/badge.svg
 ## Описание:
 
 ### Проект Foodgram представляет собой одностраничное приложение на фреймворке React и API для него на Django REST Framework. На этом сервисе пользователи могут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
