@@ -26,6 +26,7 @@ jobs:
           cd ./backend
           python -m flake8
           # python manage.py test
+
   backend_build_and_push_to_docker_hub:
     name: Build and push Docker backend image to Docker Hub
     runs-on: ubuntu-latest
