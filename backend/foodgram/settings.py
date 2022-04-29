@@ -3,20 +3,18 @@ import sys
 
 from dotenv import load_dotenv
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 load_dotenv()
 
 SECRET_KEY = os.getenv('SECRET_KEY',
-                       default='very-secret-key@#RFesf')
+                       default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
 
 
 DEBUG = int(os.environ.get('DEBUG', '0'))
 
 ALLOWED_HOSTS = os.environ.get(
     'ALLOWED_HOSTS', 'localhost 127.0.0.1').split(' ')
-
-# ['*']
 
 
 INSTALLED_APPS = [
