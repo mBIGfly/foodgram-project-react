@@ -187,7 +187,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         if errors:
             raise serializers.ValidationError(errors, code='field_error')
 
-        ingredients = data['ingredients']
+        ingredients = self.data.get('ingredients')
         ingredients_set = set()
         for ingredient in ingredients:
             if int(ingredient.get('amount')) <= 0:

@@ -1,47 +1,43 @@
-version: '3.8'
-
+version: '3.3'
 services:
+
   db:
-    image: postgres:13.0-alpine
+    image: postgres:12.4-alpine
+    container_name: db
     volumes:
-      - /var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
-
   frontend:
     image: mbigfly/foodgram_project_frontend:latest
+    container_name: frontend
     volumes:
-      - frontend_value:/app/result_build/build/
-  backend:
-
-    image: mbigfly/foodgram_project:latest
-    domainname: mbfly.ddns.net
-    restart: always
-    volumes:
-      - static_value:/app/static/
-      - media_value:/app/media/
-    depends_on:
-      - db
-    env_file:
-      - ./.env
-
+      - ../frontend/:/app/result_build/
   nginx:
     image: nginx:1.19.3
+    container_name: nginx
     ports:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - frontend_value:/var/html/frontend/
-      - ./docs/:/var/html/frontend/api/docs/
-      - static_value:/var/html/static/
-      - media_value:/var/html/media/
-
+      - ../frontend/build:/usr/share/nginx/html/
+      - ./docs:/usr/share/nginx/html/api/docs/
+      - static_volume:/var/html/static/
+      - media_volume:/var/html/media/
     depends_on:
-      - frontend
       - backend
+  backend:
+    image: mbigfly/foodgram_project:latest
+    container_name: backend
+    restart: always
+    volumes:
+      - static_volume:/app/static/
+      - media_volume:/app/media/
+    depends_on:
+      - db
+    env_file:
+      - ./.env
 volumes:
-  frontend_value:
-  static_value:
-  media_value:
-
-
+  postgres_data:
+  static_volume:
+  media_volume:
