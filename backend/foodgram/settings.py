@@ -8,7 +8,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv()
 
 SECRET_KEY = os.getenv('SECRET_KEY',
-                       default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
+                       default='very-secret-key@#RFesf')
 
 
 DEBUG = int(os.environ.get('DEBUG', '0'))
