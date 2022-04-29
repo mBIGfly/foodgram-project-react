@@ -13,9 +13,10 @@ SECRET_KEY = os.getenv('SECRET_KEY',
 
 DEBUG = int(os.environ.get('DEBUG', '0'))
 
-ALLOWED_HOSTS = ['*']
-# os.environ.get(
-#     'ALLOWED_HOSTS', 'localhost 127.0.0.1').split(' ')
+ALLOWED_HOSTS = os.environ.get(
+    'ALLOWED_HOSTS', 'localhost 127.0.0.1').split(' ')
+
+# ['*']
 
 
 INSTALLED_APPS = [
