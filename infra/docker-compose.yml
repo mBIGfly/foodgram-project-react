@@ -2,20 +2,17 @@ version: '3.3'
 services:
 
   db:
-    image: postgres:12.4-alpine
-    container_name: db
+    image: postgres:13.0-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - /var/lib/postgresql/data/
     env_file:
       - ./.env
   frontend:
     image: mbigfly/foodgram_project_frontend:latest
-    container_name: frontend
     volumes:
       - ../frontend/:/app/result_build/
   nginx:
     image: nginx:1.19.3
-    container_name: nginx
     ports:
       - "80:80"
     volumes:
@@ -28,7 +25,6 @@ services:
       - backend
   backend:
     image: mbigfly/foodgram_project:latest
-    container_name: backend
     restart: always
     volumes:
       - static_volume:/app/static/
@@ -38,6 +34,5 @@ services:
     env_file:
       - ./.env
 volumes:
-  postgres_data:
   static_volume:
   media_volume:

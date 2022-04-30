@@ -1,6 +1,7 @@
-from core import pdf
 from django.conf import settings
 from django.http import HttpResponse
+
+from core import pdf
 
 
 def make_pdf(header, data, filename, http_status):
