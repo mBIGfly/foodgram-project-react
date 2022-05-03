@@ -25,7 +25,31 @@ jobs:
         run: |
           cd ./backend
           python -m flake8
-          # python manage.py test
+
+  copy_infra_to_server:
+    name: Copy docker-compose.yml and nginx.conf
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Create projects directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo rm -rf foodgram/
+            mkdir -p foodgram/
+      - name: Copy files
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: infra/
+          remote: /home/${{ secrets.SSH_USER }}/foodgram/
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          privateKey: ${{ secrets.SSH_KEY }}
 
   backend_build_and_push_to_docker_hub:
     name: Build and push Docker backend image to Docker Hub
@@ -92,12 +116,8 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ~/foodgram/
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_project_frontend:latest
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_project:latest
-            sudo docker-compose stop
-            sudo docker-compose rm -f backend frontend
             rm -f .env
-            touch .env
+            touch .env            
             echo 'ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}' >> .env
             echo 'DEBUG=0' >> .env
             echo 'SECRET_KEY=${{ secrets.SECRET_KEY }}' >> .env
@@ -107,6 +127,11 @@ jobs:
             echo 'POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}' >> .env
             echo 'DB_HOST=${{ secrets.DB_HOST }}' >> .env
             echo 'DB_PORT=${{ secrets.DB_PORT }}' >> .env
+            sudo docker-compose stop
+            sudo docker rm foodgram_frontend_1
+            sudo docker rm foodgram_backend_1
+            sudo docker rmi ${{ secrets.DOCKER_USER }}/foodgram_project_frontend
+            sudo docker rmi ${{ secrets.DOCKER_USER }}/foodgram_project
             sudo docker-compose up -d
 
   send_message:

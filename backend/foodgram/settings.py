@@ -8,7 +8,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv()
 
 SECRET_KEY = os.getenv('SECRET_KEY',
-                       default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
+                       default='string_from_.env')
 
 
 DEBUG = int(os.environ.get('DEBUG', '0'))
@@ -109,8 +109,8 @@ USE_L10N = True
 USE_TZ = True
 
 
-STATIC_URL = '/static_backend/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_backend')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
 MEDIA_URL = '/media/'
