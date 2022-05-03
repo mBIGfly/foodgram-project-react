@@ -17,7 +17,7 @@ services:
     image: mbigfly/foodgram_project:latest
     restart: always
     command: >
-      bash -c "python manage.py migrate &&  python manage.py collectstatic --noinput &&  gunicorn --bind 0:8000 foodgram.wsgi"
+      bash -c "python manage.py migrate &&  python manage.py collectstatic --noinput && python manage.py migrate --run-syncdb && gunicorn --bind 0:8000 foodgram.wsgi"
     volumes:
       - static_volume:/app/static/
       - media_volume:/app/media/
@@ -34,8 +34,8 @@ services:
       - ./frontend/build:/usr/share/nginx/html/
       - ./docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
       - ./docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
-      - ./static_value:/var/html/static/
-      - ./media_value:/var/html/media/
+      - static_volume:/var/html/static/
+      - media_volume:/var/html/media/
     depends_on:
       - backend
 

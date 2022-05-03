@@ -11,7 +11,7 @@ SECRET_KEY = os.getenv('SECRET_KEY',
                        default='string_from_.env')
 
 
-DEBUG = int(os.environ.get('DEBUG', '0'))
+DEBUG = True  # int(os.environ.get('DEBUG', '0'))
 
 ALLOWED_HOSTS = os.environ.get(
     'ALLOWED_HOSTS', 'localhost 127.0.0.1').split(' ')
