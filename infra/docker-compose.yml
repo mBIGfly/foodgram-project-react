@@ -9,17 +9,20 @@ services:
       - ./.env
 
   frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     image: mbigfly/foodgram_project_frontend:latest
     volumes:
-      - frontend_value:/app/result_build/build/
-
+      - frontend_value:/app/result_build/
   backend:
     image: mbigfly/foodgram_project:latest
     # command: >
-    #   bash -c "python manage.py migrate &&  python manage.py collectstatic --noinput && python manage.py migrate --run-syncdb && gunicorn --bind 0:8000 foodgram.wsgi"
+    # bash -c "python manage.py migrate &&  python manage.py collectstatic --noinput && python manage.py migrate --run-syncdb && gunicorn --bind 0:8000 foodgram.wsgi"
+    # sudo docker exec -it foodgram_backend_1 python manage.py loaddata data/dump.json
     restart: always
     volumes:
-      - static_backend_value:/app/static/
+      - static_backend_value:/app/static_backend/
       - media_value:/app/media/
     depends_on:
       - db
@@ -32,10 +35,10 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - frontend_value:/var/html/frontend/
-      - ./docs/:/var/html/frontend/api/docs/
-      - static_backend_value:/var/html/static_backend/
-      - media_value:/var/html/media/
+      - frontend_value:/usr/share/nginx/html/
+      - frontend_value:/usr/share/nginx/html/api/docs/
+      - static_backend_value:/app/static_backend/
+      - media_value:/app/media/
     depends_on:
       - frontend
       - backend
@@ -43,3 +46,5 @@ volumes:
   static_backend_value:
   frontend_value:
   media_value:
+
+
