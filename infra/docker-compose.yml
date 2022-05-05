@@ -14,8 +14,6 @@ services:
       - ./frontend/:/app/result_build/
   backend:
     image: mbigfly/foodgram_project:latest
-    command: >
-      bash -c "python manage.py migrate &&  python manage.py collectstatic --noinput &&  python manage.py importingredients ingredients.json  &&  gunicorn --bind 0:8000 foodgram.wsgi"
     restart: always
     volumes:
       - static_backend_value:/app/static_backend/
