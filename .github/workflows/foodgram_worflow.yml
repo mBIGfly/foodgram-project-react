@@ -79,7 +79,7 @@ jobs:
   deploy:
     name: Deploy image on production server
     runs-on: ubuntu-latest
-    needs: frontend_build_and_push_to_docker_hub
+    needs: backend_build_and_push_to_docker_hub
     if: always() && github.ref == 'refs/heads/master' && needs.backend_build_and_push_to_docker_hub.result == 'success'
 
     steps:
