@@ -2,22 +2,27 @@ version: '3.8'
 
 services:
   db:
+    container_name: db
     image: postgres:13.0-alpine
     volumes:
-      - /var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
 
   frontend:
+    container_name: frontend
     image: mbigfly/foodgram_frontend:latest
     volumes:
-      - frontend_value:/app/result_build/build/
+      - frontend_value:/app/build/
+    depends_on:
+      - db
   backend:
+    container_name: backend
     image: mbigfly/foodgram_backend:latest
     restart: always
     volumes:
-      - static_backend_value:/app/static/
-      - media_value:/app/media/
+      - static_value:/code/backend_static/
+      - media_value:/code/backend_media/
     depends_on:
       - db
     env_file:
@@ -26,16 +31,20 @@ services:
   nginx:
     image: nginx:1.19.3
     ports:
-      - "80:80"
+      - 80:80
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - frontend_value:/var/html/frontend/
+      - frontend_value:/usr/share/nginx/html/
       - ./docs/:/usr/share/nginx/html/api/docs/
-      - static_backend_value:/var/html/static_backend/
-      - media_value:/var/html//media/
+      - static_value:/code/backend_static/
+      - media_value:/code/backend_media/
     depends_on:
       - backend
+      - frontend
 volumes:
-  static_backend_value:
-  media_value:
+  postgres_data:
   frontend_value:
+  static_value:
+  media_value:
+
+

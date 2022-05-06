@@ -11,7 +11,7 @@ SECRET_KEY = os.getenv('SECRET_KEY',
                        default='string_from_.env')
 
 
-DEBUG = int(os.environ.get('DEBUG', '0'))
+DEBUG = int(os.environ.get('DEBUG', '1'))
 
 ALLOWED_HOSTS = ['*']
 # os.environ.get(
@@ -110,12 +110,12 @@ USE_L10N = True
 USE_TZ = True
 
 
-STATIC_URL = '/static_backend/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/backend_static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'backend_static')
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/backend_media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'backend_media')
 
 
 AUTH_USER_MODEL = 'users.CustomUser'
