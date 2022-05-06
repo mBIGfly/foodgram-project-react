@@ -13,6 +13,10 @@
 
 API доступно по адресу: http://mbfly.ddns.net/api/
 
+Админка: http://mbfly.ddns.net/admin/
+логин: admin
+пароль: admin
+
 ### Разработчик бэкенда - Максим Мухин
 
 ## Технологии
