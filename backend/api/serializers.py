@@ -160,7 +160,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
 
         obj = Recipe.objects.create(**validated_data)
-        obj.save()
 
         obj.tags.set(tags)
 
