@@ -201,7 +201,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     ('Убедитесь, что значение количества '
                      'ингредиента больше 0')
                 )
-            if ingredient.get('id') in ingredients_set:
+            if ingredient in ingredients_set:
                 raise serializers.ValidationError(
                     ('Ингредиент в рецепте не должен повторяться.')
                 )
