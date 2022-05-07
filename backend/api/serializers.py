@@ -183,23 +183,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         if errors:
             raise serializers.ValidationError(errors, code='field_error')
 
-        ingredients = data.get('ingredients')
-        ingredients_set = set()
-        for ingredient in ingredients:
-            if int(ingredient.get('amount')) <= 0:
-                raise serializers.ValidationError(
-                    ('Убедитесь, что значение количества '
-                     'ингредиента больше 0')
-                )
-            ingredient_id = ingredient.get('id')
-            if ingredient_id not in ingredients_set:
-                ingredients_set.add(ingredient_id)
-            raise serializers.ValidationError(
-                'Ингредиент в рецепте не должен повторяться.'
-            )
-
-        data['ingredients'] = ingredients
-
         return data
 
     @transaction.atomic
@@ -207,8 +190,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
 
-        for field, value in validated_data.items():
-            setattr(instance, field, value)
+        super().update(instance, validated_data)
 
         instance.tags.set(tags)
         instance.image = validated_data.get('image', instance.image)
