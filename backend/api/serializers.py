@@ -154,21 +154,24 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         return self.__is_recipe(obj, Favorite)
 
+    def ingredient_in_ingredients(self, recipe, ingredients):
+        for ingredient in ingredients:
+            IngredientRecipeRelation.objects.create(
+                recipe, ingredient=ingredient['ingredient'],
+                amount=ingredient['amount']
+            ).save()
+
     @transaction.atomic
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
 
         obj = Recipe.objects.create(**validated_data)
-        obj.save()
 
         obj.tags.set(tags)
 
-        for ingredient in ingredients:
-            IngredientRecipeRelation.objects.create(
-                recipe=obj, ingredient=ingredient['ingredient'],
-                amount=ingredient['amount']
-            ).save()
+        recipe = obj
+        self.ingredient_in_ingredients(recipe, ingredients)
 
         return obj
 
@@ -207,18 +210,15 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
 
-        for field, value in validated_data.items():
-            setattr(instance, field, value)
+        super().update(instance, validated_data)
 
         instance.tags.set(tags)
         instance.image = validated_data.get('image', instance.image)
 
         instance.ingredients.clear()
-        for ingredient in ingredients:
-            IngredientRecipeRelation.objects.create(
-                recipe=instance, ingredient=ingredient['ingredient'],
-                amount=ingredient['amount']
-            ).save()
+
+        recipe = instance
+        self.ingredient_in_ingredients(recipe, ingredients)
 
         return super().update(instance, validated_data)
 
