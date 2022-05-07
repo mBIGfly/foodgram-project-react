@@ -193,15 +193,18 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 errors.update({key: 'Обязательное поле'})
 
         ingredients = data.get('ingredients')
-        ingredients_set = set()
+        ingredients_set = []
 
         for ingredient in ingredients:
+            ingredient_id = ingredient.get('id')
+
             if int(ingredient.get('amount')) <= 0:
                 raise serializers.ValidationError(
                     ('Убедитесь, что значение количества '
                      'ингредиента больше 0')
                 )
-            if ingredient.get('id') in ingredients_set:
+
+            if ingredient_id in ingredients_set:
                 raise serializers.ValidationError(
                     ('Ингредиент в рецепте не должен повторяться.')
                 )
