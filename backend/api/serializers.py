@@ -154,25 +154,23 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         return self.__is_recipe(obj, Favorite)
 
-    def ingredient_in_ingredients(self, recipe, ingredients):
-        for ingredient in ingredients:
-            IngredientRecipeRelation.objects.create(
-                recipe, ingredient=ingredient['ingredient'],
-                amount=ingredient['amount']
-            ).save()
-
     @transaction.atomic
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
 
-        recipe = Recipe.objects.create(**validated_data)
+        obj = Recipe.objects.create(**validated_data)
+        obj.save()
 
-        recipe.tags.set(tags)
+        obj.tags.set(tags)
 
-        self.ingredient_in_ingredients(recipe, ingredients)
+        for ingredient in ingredients:
+            IngredientRecipeRelation.objects.create(
+                recipe=obj, ingredient=ingredient['ingredient'],
+                amount=ingredient['amount']
+            ).save()
 
-        return recipe
+        return obj
 
     def validate(self, data):
         keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
@@ -209,15 +207,18 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
 
-        super().update(instance, validated_data)
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
 
         instance.tags.set(tags)
         instance.image = validated_data.get('image', instance.image)
 
         instance.ingredients.clear()
-
-        recipe = instance
-        self.ingredient_in_ingredients(recipe, ingredients)
+        for ingredient in ingredients:
+            IngredientRecipeRelation.objects.create(
+                recipe=instance, ingredient=ingredient['ingredient'],
+                amount=ingredient['amount']
+            ).save()
 
         return super().update(instance, validated_data)
 
