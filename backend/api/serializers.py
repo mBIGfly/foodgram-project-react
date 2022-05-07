@@ -154,7 +154,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         return self.__is_recipe(obj, Favorite)
 
-     @transaction.atomic
+    @transaction.atomic
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -205,7 +205,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             ).save()
 
         return super().update(instance, validated_data)
-
 
     def to_representation(self, instance):
         self.fields.pop('ingredients')
