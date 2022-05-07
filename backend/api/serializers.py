@@ -173,7 +173,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         recipe = obj
         self.ingredient_in_ingredients(recipe, ingredients)
 
-        return recipe
+        return Recipe.objects.create(**validated_data)
 
     def validate(self, data):
         keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
@@ -204,7 +204,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         recipe = instance
         self.ingredient_in_ingredients(recipe, ingredients)
 
-        return super().update(instance, validated_data)
+        return super().update(recipe, validated_data)
 
     def to_representation(self, instance):
         self.fields.pop('ingredients')
