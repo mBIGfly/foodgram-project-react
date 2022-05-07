@@ -173,7 +173,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         recipe = obj
         self.ingredient_in_ingredients(recipe, ingredients)
 
-        return obj
+        return recipe
 
     def validate(self, data):
         keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
