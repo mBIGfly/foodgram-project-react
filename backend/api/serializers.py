@@ -166,14 +166,13 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
 
-        obj = Recipe.objects.create(**validated_data)
-        obj.save()
-        obj.tags.set(tags)
+        recipe = Recipe.objects.create(**validated_data)
 
-        recipe = obj
+        recipe.tags.set(tags)
+
         self.ingredient_in_ingredients(recipe, ingredients)
 
-        return obj
+        return recipe
 
     def validate(self, data):
         keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
