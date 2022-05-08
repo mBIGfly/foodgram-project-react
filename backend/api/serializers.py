@@ -195,15 +195,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             if int(ingredient.get('amount')) <= 0:
                 errors.update(
                     ('Убедитесь, что значение количества '
-                     'ингредиента больше 0')
-                )
-
-        ingredients_set = set()
-        for ingredient in ingredients_set:
-            if ingredient in ingredients_set:
-                errors.update(
-                    ('Ингредиент в рецепте не должен повторяться.')
-                )
+                     'ингредиента больше 0'))
 
         if errors:
             raise serializers.ValidationError(errors, code='field_error')
