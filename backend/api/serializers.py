@@ -171,18 +171,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
         return obj
 
-    def validate(self, data):
-        keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
-        errors = {}
-        for key in keys:
-            if key not in data:
-                errors.update({key: 'Обязательное поле'})
-
-        if errors:
-            raise serializers.ValidationError(errors, code='field_error')
-
-        return data
-
     @ transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
