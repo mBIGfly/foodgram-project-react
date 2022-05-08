@@ -179,9 +179,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 errors.update({key: 'Обязательное поле'})
         if errors:
             raise serializers.ValidationError(errors, code='field_error')
-        return data
 
-    def validate_ingredients(self, data):
         ingredients = data.get('ingredients')
         ingredients_set = set()
         for ingredient in ingredients:
