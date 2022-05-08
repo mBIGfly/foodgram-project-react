@@ -171,7 +171,30 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
         return obj
 
-    @transaction.atomic
+    def validate(self, data):
+        keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
+        ingredients = self.initial_data.get("ingredients")
+        # ingredients_set = set()
+        errors = {}
+        for key in keys:
+            if key not in data:
+                errors.update({key: 'Обязательное поле'})
+        for ingredient in ingredients:
+            if int(ingredient.get("amount")) <= 0:
+                raise errors.update(
+                    {'Убедитесь, что значение количества '
+                     'ингредиента больше 0'})
+
+            # if key not in data:
+            #     errors.update(
+            #         {key: 'Ингредиент в рецепте не должен повторяться.'})
+
+        if errors:
+            raise serializers.ValidationError(errors, code='field_error')
+
+        return data
+
+    @ transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -189,24 +212,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             ).save()
 
         return super().update(instance, validated_data)
-
-    def validate_data(self, data):
-        ingredients = self.initial_data.get("ingredients")
-        ingredients_set = set()
-        for ingredient in ingredients:
-            if int(ingredient.get("amount")) <= 0:
-                raise serializers.ValidationError(
-                    ("Убедитесь, что значение количества "
-                     "ингредиента больше 0")
-                )
-            id = ingredient.get("id")
-            if id in ingredients_set:
-                raise serializers.ValidationError(
-                    "Ингредиент в рецепте не должен повторяться."
-                )
-            ingredients_set.add(id)
-        data["ingredients"] = ingredients
-        return data
 
     def to_representation(self, instance):
         self.fields.pop('ingredients')
