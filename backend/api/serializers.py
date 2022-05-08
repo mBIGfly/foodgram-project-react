@@ -186,12 +186,13 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         # return data
         keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
         errors = {}
+        ingredients_set = data.get('ingredients')
+
         for key in keys:
             if key not in data:
                 errors.update({key: 'Обязательное поле'})
 
-        ingredients = data.get('ingredients')
-        for ingredient in ingredients:
+        for ingredient in ingredients_set:
             if int(ingredient.get('amount')) <= 0:
                 errors.update(
                     ('Убедитесь, что значение количества '
