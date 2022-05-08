@@ -180,12 +180,12 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     ("Убедитесь, что значение количества "
                      "ингредиента больше 0")
                 )
-            id = ingredient.get("id")
-            if id in ingredients_set:
+            ingredient_id = ingredient.get("id")
+            if ingredient_id in ingredients_set:
                 raise serializers.ValidationError(
                     "Ингредиент в рецепте не должен повторяться."
                 )
-            ingredients_set.add(id)
+            ingredients_set.add(ingredient_id)
         data["ingredients"] = ingredients
         return data
 
