@@ -182,10 +182,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return data
 
     def validate_ingredients(self, data):
-        if not data:
-            raise serializers.ValidationError(
-                'Нужен как минимум один ингредиент'
-            )
         list_of_id = [_['ingredients']['id'] for _ in data]
         if len(list_of_id) != len(set(list_of_id)):
             raise serializers.ValidationError(
