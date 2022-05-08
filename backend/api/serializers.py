@@ -171,15 +171,15 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
         return obj
 
-    def validate(self, data):
+    def validate(self, value):
         keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
         errors = {}
         for key in keys:
-            if key not in data:
+            if key not in value:
                 errors.update({key: 'Обязательное поле'})
         if errors:
             raise serializers.ValidationError(errors, code='field_error')
-        return data
+        return value
 
     def validate_ingredients(self, data):
         ingredients = data.get('ingredients')
