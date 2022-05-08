@@ -209,7 +209,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     ('Ингредиент в рецепте не должен повторяться.')
                 )
 
-            data['ingredients'] = ingredients
+            data['ingredients'] = ingredients_set
 
         if errors:
             raise serializers.ValidationError(errors, code='field_error')
