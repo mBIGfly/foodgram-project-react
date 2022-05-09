@@ -159,7 +159,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         method = self.context.get('request').method
         author = self.context.get('request').user
         recipe_name = data.get('name')
-        ingredients = self.initial_data.get('ingredients')
+        ingredients = data.get('ingredients')
         tags = self.initial_data.get('tags')
 
         if method in ('POST', 'PUT'):
@@ -195,11 +195,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             amount = ingredient.get('amount')
             ingr_id = ingredient.get('id')
-            if not Ingredient.objects.filter(id=ingr_id).exists():
-                raise serializers.ValidationError(
-                    'Такого ингредиента еще нет, '
-                    'обратитесь к администратору.'
-                )
             if ingr_id in ingrs_set:
                 raise serializers.ValidationError(
                     'Ингредиент в рецепте не должен повторяться.'
@@ -222,16 +217,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Необходимо добавить хотя бы один тэг'
             )
-        if len(tags) > len(set(tags)):
-            raise serializers.ValidationError(
-                'Тэги не должны повторяться'
-            )
-        for tag_id in tags:
-            if not Tag.objects.filter(id=tag_id).exists():
-                raise serializers.ValidationError(
-                    'Такого тэга еще нет, '
-                    'обратитесь к администратору.'
-                )
 
     @transaction.atomic
     def create(self, validated_data):
