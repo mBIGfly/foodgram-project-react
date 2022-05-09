@@ -159,28 +159,20 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        obj = Recipe.objects.create(**validated_data)
-        obj.tags.set(tags)
-        for ingredient in ingredients:
-            IngredientRecipeRelation.objects.create(
-                recipe=obj, ingredient=ingredient['ingredient'],
-                amount=ingredient['amount']
-            ).save()
-        return obj
+        recipe = Recipe.objects.create(**validated_data)
+        amounts = ingredients(ingredients)
+        recipe.ingredients.set(amounts)
+        recipe.tags.set(tags)
+
+        return recipe
 
     @ transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        super().update(instance, validated_data)
+        amounts = ingredients(ingredients)
+        instance.ingredients.set(amounts)
         instance.tags.set(tags)
-        instance.image = validated_data.get('image', instance.image)
-        instance.ingredients.clear()
-        for ingredient in ingredients:
-            IngredientRecipeRelation.objects.create(
-                recipe=instance, ingredient=ingredient['ingredient'],
-                amount=ingredient['amount']
-            ).save()
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
@@ -192,10 +184,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 recipe=instance).all(), many=True).data
         return representation
 
-    def validate(self, obj):
+    def validate_data(self, data):
         method = self.context.get('request').method
         author = self.context.get('request').user
-        recipe_name = obj.get('name')
+        recipe_name = data.get('name')
         ingredients = self.initial_data.get('ingredients')
         tags = self.initial_data.get('tags')
 
@@ -209,15 +201,15 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             self.ingr_validate(ingredients)
 
             if method == 'POST':
-                obj['author'] = author
-            obj['ingredients'] = ingredients
-            obj['tags'] = tags
+                data['author'] = author
+            data['ingredients'] = ingredients
+            data['tags'] = tags
 
         if method == 'PATCH':
             if ingredients:
                 self.ingr_validate(ingredients)
-                obj['ingredients'] = ingredients
-        return obj
+                data['ingredients'] = ingredients
+        return data
 
     def ingr_validate(self, ingredients):
         ingredients_set = set()
