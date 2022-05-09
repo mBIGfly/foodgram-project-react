@@ -171,7 +171,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 )
             ingredients_set.add(ing_id)
         self.data['ingredients'] = ingredients
-        return self.data
+        return data
 
     @transaction.atomic
     def create(self, validated_data):
