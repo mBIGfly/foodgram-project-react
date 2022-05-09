@@ -95,7 +95,7 @@ class IngredientRecipeRelation(models.Model):
         'Количество', validators=(MinValueValidator(1),))
 
     def validate(self, data):
-        ingredients = self.initial_data.get('ingredients')
+        ingredients = data.get('ingredients')
         ingredients_set = set()
         for ingredient in ingredients:
             if int(ingredient.get('amount')) <= 0:
@@ -104,7 +104,8 @@ class IngredientRecipeRelation(models.Model):
                      'ингредиента больше 0')
                 )
             ing_id = ingredient.get('id')
-            if ing_id in ingredients_set:
+        for ing_id in ingredients_set:
+            if ing_id in ingredients:
                 raise serializers.ValidationError(
                     'Ингредиент в рецепте не должен повторяться.'
                 )
