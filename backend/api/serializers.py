@@ -53,6 +53,18 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    def validate_ingredients(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Нужен как минимум один ингредиент'
+            )
+        list_of_id = [_['ingredients']['id'] for _ in value]
+        if len(list_of_id) != len(set(list_of_id)):
+            raise serializers.ValidationError(
+                'Ингредиенты не должны дублироваться'
+            )
+        return value
+
     class Meta:
         fields = ('id', 'name', 'measurement_unit')
         model = Ingredient
@@ -171,28 +183,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
         return obj
 
-    def validate(self, data):
-        keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
-        errors = {}
-        for key in keys:
-            if key not in data:
-                errors.update({key: 'Обязательное поле'})
-        if errors:
-            raise serializers.ValidationError(errors, code='field_error')
-
-        ingredients = data.get('ingredients')
-        ingredient_id = data.get('id')
-        ingredients_set = set()
-        for ingredient_id in ingredients_set:
-            if ingredient_id in ingredients_set:
-                raise serializers.ValidationError(
-                    'Ингредиент в рецепте не должен повторяться.'
-                )
-            ingredients_set.add(ingredient_id)
-        data['ingredients'] = ingredients
-
-        return data
-
     @ transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
@@ -211,6 +201,17 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             ).save()
 
         return super().update(instance, validated_data)
+
+    def validated_data(self, data):
+        keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
+        errors = {}
+        for key in keys:
+            if key not in data:
+                errors.update({key: 'Обязательное поле'})
+        if errors:
+            raise serializers.ValidationError(errors, code='field_error')
+
+        return data
 
     def to_representation(self, instance):
         self.fields.pop('ingredients')
