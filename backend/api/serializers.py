@@ -193,27 +193,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return representation
 
     def validate(self, data):
-        method = self.context.get('request').method
-        author = self.context.get('request').user
-        recipe_name = data.get('name')
         ingredients = self.initial_data.get('ingredients')
-
-        if method in ('POST', 'PUT'):
-            if (method == 'POST'
-                and Recipe.objects.filter(author=author,
-                                          name=recipe_name).exists()):
-                raise serializers.ValidationError(
-                    'Такой рецепт у вас уже есть!'
-                )
-            self.ingr_validate(ingredients)
-
-        if method == 'PATCH':
-            if ingredients:
-                self.ingr_validate(ingredients)
-                data['ingredients'] = ingredients
-        return data
-
-    def ingr_validate(self, ingredients):
         ingredients_set = set()
         if not ingredients:
             raise serializers.ValidationError(
@@ -226,6 +206,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 )
 
             ingredients_set.add(ingr_id)
+        data['ingredients'] = ingredients
+        return data
 
     class Meta:
         fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
