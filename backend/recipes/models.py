@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from rest_framework import serializers
 from sorl.thumbnail import ImageField
 
 from core.images import upload_to
@@ -93,25 +92,6 @@ class IngredientRecipeRelation(models.Model):
         Ingredient, on_delete=models.PROTECT, verbose_name='Ингредиент')
     amount = models.PositiveSmallIntegerField(
         'Количество', validators=(MinValueValidator(1),))
-
-    def validate(self, data):
-        ingredients = data.get('ingredients')
-        ingredients_set = set()
-        for ingredient in ingredients:
-            if int(ingredient.get('amount')) <= 0:
-                raise serializers.ValidationError(
-                    ('Убедитесь, что значение количества '
-                     'ингредиента больше 0')
-                )
-            ing_id = ingredient.get('id')
-        for ing_id in ingredients_set:
-            if ing_id in ingredients:
-                raise serializers.ValidationError(
-                    'Ингредиент в рецепте не должен повторяться.'
-                )
-            ingredients_set.add(ing_id)
-        data['ingredients'] = ingredients
-        return data
 
     class Meta:
         verbose_name = 'Ингредиенты для рецепта'
