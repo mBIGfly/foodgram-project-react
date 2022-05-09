@@ -69,6 +69,12 @@ class IngredeintAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit')
 
 
+class TagAdmin(admin.ModelAdmin):
+    search_fields = ('name',)
+    fields = ('name', 'color',)
+    list_display = ('name', 'color',)
+
+
 admin.site.register(Ingredient, IngredeintAdmin)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Tag)
