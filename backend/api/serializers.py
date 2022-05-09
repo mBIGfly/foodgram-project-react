@@ -164,13 +164,13 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     ('Убедитесь, что значение количества '
                      'ингредиента больше 0')
                 )
-            ing_id = ingredient.get('id')
+            ing_id = ingredient.get('name')
             if ing_id in ingredients_set:
                 raise serializers.ValidationError(
                     'Ингредиент в рецепте не должен повторяться.'
                 )
             ingredients_set.add(ing_id)
-        self.data['ingredients'] = ingredients
+        data['ingredients'] = ingredients
         return data
 
     @transaction.atomic
