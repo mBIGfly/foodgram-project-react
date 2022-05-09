@@ -192,10 +192,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 recipe=instance).all(), many=True).data
         return representation
 
-    def validate(self, data):
+    def validate(self, obj):
         method = self.context.get('request').method
         author = self.context.get('request').user
-        recipe_name = data.get('name')
+        recipe_name = obj.get('name')
         ingredients = self.initial_data.get('ingredients')
         tags = self.initial_data.get('tags')
 
@@ -209,15 +209,15 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             self.ingr_validate(ingredients)
 
             if method == 'POST':
-                data['author'] = author
-            data['ingredients'] = ingredients
-            data['tags'] = tags
+                obj['author'] = author
+            obj['ingredients'] = ingredients
+            obj['tags'] = tags
 
         if method == 'PATCH':
             if ingredients:
                 self.ingr_validate(ingredients)
-                data['ingredients'] = ingredients
-        return data
+                obj['ingredients'] = ingredients
+        return obj
 
     def ingr_validate(self, ingredients):
         ingredients_set = set()
