@@ -192,23 +192,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 recipe=instance).all(), many=True).data
         return representation
 
-    def validate(self, data):
-        ingredients = self.initial_data.get('ingredients')
-        ingredients_set = set()
-        if not ingredients:
-            raise serializers.ValidationError(
-                'Необходимо добавить хотя бы один ингридиент')
-        for ingredient in ingredients:
-            ingr_id = ingredient.get('id')
-            if ingr_id in ingredients_set:
-                raise serializers.ValidationError(
-                    'Ингредиент в рецепте не должен повторяться.'
-                )
-
-            ingredients_set.add(ingr_id)
-        data['ingredients'] = ingredients
-        return data
-
     class Meta:
         fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
                   'is_in_shopping_cart', 'name', 'image', 'text',
