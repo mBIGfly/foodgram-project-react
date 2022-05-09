@@ -155,107 +155,111 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         return self.__is_recipe(obj, Favorite)
 
-    def validate(self, data):
-        method = self.context.get('request').method
-        author = self.context.get('request').user
-        recipe_name = data.get('name')
-        ingredients = self.initial_data.get('ingredients')
-        tags = self.initial_data.get('tags')
-
-        if method in ('POST', 'PUT'):
-            if (method == 'POST'
-                and Recipe.objects.filter(author=author,
-                                          name=recipe_name).exists()):
-                raise serializers.ValidationError(
-                    'Такой рецепт у вас уже есть!'
-                )
-            self.ingr_validate(ingredients)
-            self.tag_validate(tags)
-
-            if method == 'POST':
-                data['author'] = author
-            data['ingredients'] = ingredients
-            data['tags'] = tags
-
-        if method == 'PATCH':
-            if ingredients:
-                self.ingr_validate(ingredients)
-                data['ingredients'] = ingredients
-        return data
-
-    def ingr_validate(self, ingredients):
-        ingrs_set = set()
-        if not ingredients:
-            raise serializers.ValidationError(
-                'Необходимо добавить хотя бы один ингридиент'
-            )
+    def validate_data(self, data):
+        ingredients = self.initial_data.get("ingredients")
+        ingredients_set = set()
         for ingredient in ingredients:
-            amount = ingredient.get('amount')
-            ingr_id = ingredient.get('id')
-            if ingr_id in ingrs_set:
+            if int(ingredient.get("amount")) <= 0:
                 raise serializers.ValidationError(
-                    'Ингредиент в рецепте не должен повторяться.'
+                    ("Убедитесь, что значение количества " "ингредиента больше 0")
                 )
-            try:
-                int(amount)
-            except ValueError:
+            id = ingredient.get("id")
+            if id in ingredients_set:
                 raise serializers.ValidationError(
-                    'Количество ингридиента должно быть числом'
+                    "Ингредиент в рецепте не должен повторяться."
                 )
-            if int(amount) < 1:
-                raise serializers.ValidationError(
-                    'Убедитесь, что значение количества '
-                    'ингредиента больше единицы'
-                )
-            ingrs_set.add(ingr_id)
-        return ingredients
+            ingredients_set.add(id)
+        data["ingredients"] = ingredients
+        return data
+    # def validate(self, data):
+    #     method = self.context.get('request').method
+    #     author = self.context.get('request').user
+    #     recipe_name = data.get('name')
+    #     ingredients = self.initial_data.get('ingredients')
+    #     tags = self.initial_data.get('tags')
+
+    #     if method in ('POST', 'PUT'):
+    #         if (method == 'POST'
+    #             and Recipe.objects.filter(author=author,
+    #                                       name=recipe_name).exists()):
+    #             raise serializers.ValidationError(
+    #                 'Такой рецепт у вас уже есть!'
+    #             )
+    #         self.ingr_validate(ingredients)
+    #         self.tag_validate(tags)
+
+    #         if method == 'POST':
+    #             data['author'] = author
+    #         data['ingredients'] = ingredients
+    #         data['tags'] = tags
+
+    #     if method == 'PATCH':
+    #         if ingredients:
+    #             self.ingr_validate(ingredients)
+    #             data['ingredients'] = ingredients
+    #     return data
+
+    # def ingr_validate(self, ingredients):
+    #     ingrs_set = set()
+    #     if not ingredients:
+    #         raise serializers.ValidationError(
+    #             'Необходимо добавить хотя бы один ингридиент'
+    #         )
+    #     for ingredient in ingredients:
+    #         amount = ingredient.get('amount')
+    #         ingr_id = ingredient.get('id')
+    #         if ingr_id in ingrs_set:
+    #             raise serializers.ValidationError(
+    #                 'Ингредиент в рецепте не должен повторяться.'
+    #             )
+    #         try:
+    #             int(amount)
+    #         except ValueError:
+    #             raise serializers.ValidationError(
+    #                 'Количество ингридиента должно быть числом'
+    #             )
+    #         if int(amount) < 1:
+    #             raise serializers.ValidationError(
+    #                 'Убедитесь, что значение количества '
+    #                 'ингредиента больше единицы'
+    #             )
+    #         ingrs_set.add(ingr_id)
 
     @transaction.atomic
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-
         obj = Recipe.objects.create(**validated_data)
-
         obj.tags.set(tags)
-
         for ingredient in ingredients:
             IngredientRecipeRelation.objects.create(
                 recipe=obj, ingredient=ingredient['ingredient'],
                 amount=ingredient['amount']
             ).save()
-
         return obj
 
     @ transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-
         super().update(instance, validated_data)
-
         instance.tags.set(tags)
         instance.image = validated_data.get('image', instance.image)
-
         instance.ingredients.clear()
         for ingredient in ingredients:
             IngredientRecipeRelation.objects.create(
                 recipe=instance, ingredient=ingredient['ingredient'],
                 amount=ingredient['amount']
             ).save()
-
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         self.fields.pop('ingredients')
         self.fields['tags'] = TagSerializer(many=True)
-
         representation = super().to_representation(instance)
-
         representation['ingredients'] = IngredientRecipeRelationSerializer(
             IngredientRecipeRelation.objects.filter(
                 recipe=instance).all(), many=True).data
-
         return representation
 
     class Meta:
