@@ -30,7 +30,7 @@ class IngredientRecipeRelationAdminInline(admin.TabularInline):
 
 
 class RecipeAdmin(AdminImageMixin, admin.ModelAdmin):
-    list_display = ('name', 'author', 'tags', 'favorite_count')
+    list_display = ('name', 'author', 'tags_name', 'favorite_count')
     search_fields = ('name', 'author__username', 'author__last_name',
                      'tags__name', 'tags__slug', 'author__first_name')
     inlines = (IngredientRecipeRelationAdminInline,)
@@ -63,21 +63,18 @@ class RecipeAdmin(AdminImageMixin, admin.ModelAdmin):
     favorite_count.short_description = 'В избранном'
     shoppingcart_count.short_description = 'В списке покупок'
 
+    def favorite_coutags_nament(self, obj):
+        return obj.tag.name()
+
 
 class IngredeintAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_display = ('name', 'measurement_unit')
 
 
-class TagAdmin(admin.ModelAdmin):
-    search_fields = ('name',)
-    fields = ('name', 'color',)
-    list_display = ('name', 'color',)
-
-
 admin.site.register(Ingredient, IngredeintAdmin)
 admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(Tag, TagAdmin)
+admin.site.register(Tag)
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(ShoppingCart, ShoppingCartAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
