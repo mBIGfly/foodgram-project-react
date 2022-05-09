@@ -105,18 +105,6 @@ class RecipeCreateIngredientSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         source='ingredient', queryset=Ingredient.objects.all())
 
-    def validate_ingredients(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'Нужен как минимум один ингредиент'
-            )
-        list_of_id = [_['ingredients']['id'] for _ in value]
-        if len(list_of_id) != len(set(list_of_id)):
-            raise serializers.ValidationError(
-                'Ингредиенты не должны дублироваться'
-            )
-        return value
-
     class Meta:
         fields = ('id', 'amount')
         model = IngredientRecipeRelation
@@ -203,15 +191,21 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
 
-    def validated_data(self, data):
-        keys = ('ingredients', 'tags', 'text', 'name', 'cooking_time')
-        errors = {}
-        for key in keys:
-            if key not in data:
-                errors.update({key: 'Обязательное поле'})
-        if errors:
-            raise serializers.ValidationError(errors, code='field_error')
-
+    def validate_data(self, data):
+        ingredients = self.initial_data.get("ingredients")
+        ingredients_set = set()
+        for ingredient in ingredients:
+            if int(ingredient.get("amount")) <= 0:
+                raise serializers.ValidationError(
+                    ("Убедитесь, что значение количества " "ингредиента больше 0")
+                )
+            id = ingredient.get("id")
+            if id in ingredients_set:
+                raise serializers.ValidationError(
+                    "Ингредиент в рецепте не должен повторяться."
+                )
+            ingredients_set.add(id)
+        data["ingredients"] = ingredients
         return data
 
     def to_representation(self, instance):
