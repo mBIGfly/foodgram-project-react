@@ -156,43 +156,21 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return self.__is_recipe(obj, Favorite)
 
     def validate(self, data):
-        unique_ingr = data["ingredients"]
-        ingr_list = []
-        for item in unique_ingr:
-            id = item["id"]
-            amount = item["amount"]
-            try:
-                exist_item = get_object_or_404(
-                    IngredientRecipeRelation, id=id, amount=amount
+        ingredients = self.initial_data.get('ingredients')
+        ingredients_set = set()
+        for ingredient in ingredients:
+            if int(ingredient.get('amount')) <= 0:
+                raise serializers.ValidationError(
+                    ('Убедитесь, что значение количества '
+                     'ингредиента больше 0')
                 )
-                if exist_item.ingredient in ingr_list:
-                    raise serializers.ValidationError(
-                        {
-                            "message": "Извините,"
-                            " но добавить одинаковые ингредиенты нельзя."
-                        }
-                    )
-                else:
-                    ingr_list.append(exist_item.ingredient)
-            except Exception:
-                new_ingr = get_object_or_404(Ingredient, id=id)
-                if new_ingr in ingr_list:
-                    raise serializers.ValidationError(
-                        {
-                            "message": "Извините,"
-                            " но добавить одинаковые ингредиенты нельзя."
-                        }
-                    )
-                else:
-                    ingr_list.append(new_ingr)
-
-        if len(ingr_list) != len(set(ingr_list)):
-            raise serializers.ValidationError(
-                {
-                    "message": "Извините,"
-                    " но добавить одинаковые ингредиенты нельзя."
-                }
-            )
+            ing_id = ingredient.get('id')
+            if ing_id in ingredients_set:
+                raise serializers.ValidationError(
+                    'Ингредиент в рецепте не должен повторяться.'
+                )
+            ingredients_set.add(ing_id)
+        data['ingredients'] = ingredients
         return data
 
     @transaction.atomic
