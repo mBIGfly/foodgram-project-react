@@ -159,7 +159,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         method = self.context.get('request').method
         author = self.context.get('request').user
         recipe_name = data.get('name')
-        ingredients = self.data.get('ingredients')
+        ingredients = self.initial_data.get('ingredients')
         tags = self.initial_data.get('tags')
 
         if method in ('POST', 'PUT'):
@@ -181,9 +181,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             if ingredients:
                 self.ingr_validate(ingredients)
                 data['ingredients'] = ingredients
-            if tags:
-                self.tag_validate(tags)
-                data['tags'] = tags
         return data
 
     def ingr_validate(self, ingredients):
@@ -211,12 +208,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     'ингредиента больше единицы'
                 )
             ingrs_set.add(ingr_id)
-
-    def tag_validate(self, tags):
-        if not tags:
-            raise serializers.ValidationError(
-                'Необходимо добавить хотя бы один тэг'
-            )
 
     @transaction.atomic
     def create(self, validated_data):
