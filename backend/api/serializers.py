@@ -197,7 +197,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         author = self.context.get('request').user
         recipe_name = data.get('name')
         ingredients = self.initial_data.get('ingredients')
-        tags = self.initial_data.get('tags')
 
         if method in ('POST', 'PUT'):
             if (method == 'POST'
@@ -207,11 +206,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     'Такой рецепт у вас уже есть!'
                 )
             self.ingr_validate(ingredients)
-
-            if method == 'POST':
-                data['author'] = author
-            data['ingredients'] = ingredients
-            data['tags'] = tags
 
         if method == 'PATCH':
             if ingredients:
