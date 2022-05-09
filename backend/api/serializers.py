@@ -192,9 +192,9 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def validate_data(self, data):
-        ingredients = self.initial_data.get("ingredients")
+        ingredients = data.get("ingredients")
         ingredients_set = set()
-        for ingredient in ingredients:
+        for ingredient in ingredients_set:
             if int(ingredient.get("amount")) <= 0:
                 raise serializers.ValidationError(
                     ("Убедитесь, что значение количества "
