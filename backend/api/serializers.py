@@ -208,6 +208,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     'ингредиента больше единицы'
                 )
             ingrs_set.add(ingr_id)
+        return ingredients
 
     @transaction.atomic
     def create(self, validated_data):
