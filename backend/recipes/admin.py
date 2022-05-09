@@ -30,11 +30,11 @@ class IngredientRecipeRelationAdminInline(admin.TabularInline):
 
 
 class RecipeAdmin(AdminImageMixin, admin.ModelAdmin):
-    list_display = ('name', 'author', 'tags')
+    list_display = ('name', 'author')
     search_fields = ('name', 'author__username', 'author__last_name',
                      'tags__name', 'tags__slug', 'author__first_name')
     inlines = (IngredientRecipeRelationAdminInline,)
-    list_filter = ('name', 'author__username', 'tags__slug')
+    list_filter = ('name', 'author__username', 'tags')
     fieldsets = (
         ('Основнвые данные', {
             'fields': (
