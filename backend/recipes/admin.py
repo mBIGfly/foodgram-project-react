@@ -63,8 +63,8 @@ class RecipeAdmin(AdminImageMixin, admin.ModelAdmin):
     favorite_count.short_description = 'В избранном'
     shoppingcart_count.short_description = 'В списке покупок'
 
-    def favorite_coutags_nament(self, obj):
-        return obj.tag.name()
+    def tags_name(self, obj):
+        return obj.tagname.name()
 
 
 class IngredeintAdmin(admin.ModelAdmin):

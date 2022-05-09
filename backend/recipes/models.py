@@ -18,7 +18,7 @@ class BaseModel(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(
-        'Имя тега', max_length=150, unique=True)
+        'Имя тега', max_length=150, unique=True, related_name='tagname')
     color = models.CharField(
         'Цвет', help_text=(
             'Введите код цвета в шестнадцетиричном формате (#ABCDEF)'),
