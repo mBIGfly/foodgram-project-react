@@ -155,17 +155,45 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         return self.__is_recipe(obj, Favorite)
 
-    def validate_ingredients(self, value):
-        if not value:
+    def validate(self, data):
+        unique_ingr = data["ingredients"]
+        ingr_list = []
+        for item in unique_ingr:
+            id = item["id"]
+            amount = item["amount"]
+            try:
+                exist_item = get_object_or_404(
+                    IngredientRecipeRelation, id=id, amount=amount
+                )
+                if exist_item.ingredient in ingr_list:
+                    raise serializers.ValidationError(
+                        {
+                            "message": "Извините,"
+                            " но добавить одинаковые ингредиенты нельзя."
+                        }
+                    )
+                else:
+                    ingr_list.append(exist_item.ingredient)
+            except Exception:
+                new_ingr = get_object_or_404(Ingredient, id=id)
+                if new_ingr in ingr_list:
+                    raise serializers.ValidationError(
+                        {
+                            "message": "Извините,"
+                            " но добавить одинаковые ингредиенты нельзя."
+                        }
+                    )
+                else:
+                    ingr_list.append(new_ingr)
+
+        if len(ingr_list) != len(set(ingr_list)):
             raise serializers.ValidationError(
-                'Нужен как минимум один ингредиент'
+                {
+                    "message": "Извините,"
+                    " но добавить одинаковые ингредиенты нельзя."
+                }
             )
-        list_of_id = [_['ingredients']['id'] for _ in value]
-        if len(list_of_id) != len(set(list_of_id)):
-            raise serializers.ValidationError(
-                'Ингредиенты не должны дублироваться'
-            )
-        return value
+        return data
 
     @transaction.atomic
     def create(self, validated_data):
