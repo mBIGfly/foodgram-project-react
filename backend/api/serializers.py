@@ -217,6 +217,22 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 )
             ingrs_set.add(ingr_id)
 
+    def tag_validate(self, tags):
+        if not tags:
+            raise serializers.ValidationError(
+                'Необходимо добавить хотя бы один тэг'
+            )
+        if len(tags) > len(set(tags)):
+            raise serializers.ValidationError(
+                'Тэги не должны повторяться'
+            )
+        for tag_id in tags:
+            if not Tag.objects.filter(id=tag_id).exists():
+                raise serializers.ValidationError(
+                    'Такого тэга еще нет, '
+                    'обратитесь к администратору.'
+                )
+
     @transaction.atomic
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
