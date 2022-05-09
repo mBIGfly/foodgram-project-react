@@ -163,7 +163,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         obj.tags.set(tags)
         for ingredient in ingredients:
             IngredientRecipeRelation.objects.create(
-                recipe=obj, ingredient=ingredient.get('ingredient'),
+                recipe=obj, ingredient=ingredient['ingredient'],
                 amount=ingredient['amount']
             ).save()
         return obj
@@ -178,7 +178,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         instance.ingredients.clear()
         for ingredient in ingredients:
             IngredientRecipeRelation.objects.create(
-                recipe=instance, ingredient=ingredient.get('ingredient'),
+                recipe=instance, ingredient=ingredient['ingredient'],
                 amount=ingredient['amount']
             ).save()
         return super().update(instance, validated_data)
@@ -225,23 +225,12 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Необходимо добавить хотя бы один ингридиент')
         for ingredient in ingredients:
-            amount = ingredient.get('amount')
             ingr_id = ingredient.get('id')
             if ingr_id in ingredients_set:
                 raise serializers.ValidationError(
                     'Ингредиент в рецепте не должен повторяться.'
                 )
-            try:
-                int(amount)
-            except ValueError:
-                raise serializers.ValidationError(
-                    'Количество ингридиента должно быть числом'
-                )
-            if int(amount) < 1:
-                raise serializers.ValidationError(
-                    'Убедитесь, что значение количества '
-                    'ингредиента больше единицы'
-                )
+
             ingredients_set.add(ingr_id)
 
     class Meta:
