@@ -53,17 +53,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    def validate_ingredients(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'Нужен как минимум один ингредиент'
-            )
-        list_of_id = [_['ingredients']['id'] for _ in value]
-        if len(list_of_id) != len(set(list_of_id)):
-            raise serializers.ValidationError(
-                'Ингредиенты не должны дублироваться'
-            )
-        return value
 
     class Meta:
         fields = ('id', 'name', 'measurement_unit')
@@ -115,6 +104,18 @@ class RecipeSerializerList(serializers.ModelSerializer):
 class RecipeCreateIngredientSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         source='ingredient', queryset=Ingredient.objects.all())
+
+    def validate_ingredients(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Нужен как минимум один ингредиент'
+            )
+        list_of_id = [_['ingredients']['id'] for _ in value]
+        if len(list_of_id) != len(set(list_of_id)):
+            raise serializers.ValidationError(
+                'Ингредиенты не должны дублироваться'
+            )
+        return value
 
     class Meta:
         fields = ('id', 'amount')
