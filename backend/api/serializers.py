@@ -170,8 +170,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     'Ингредиент в рецепте не должен повторяться.'
                 )
             ingredients_set.add(ing_id)
-        data['ingredients'] = ingredients
-        return data
+        self.data['ingredients'] = ingredients
+        return self.data
 
     @transaction.atomic
     def create(self, validated_data):
