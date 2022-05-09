@@ -64,7 +64,7 @@ class RecipeAdmin(AdminImageMixin, admin.ModelAdmin):
     shoppingcart_count.short_description = 'В списке покупок'
 
     def tags_name(self, obj):
-        return obj.tagname.name()
+        return self.get(obj).tagname
 
 
 class IngredeintAdmin(admin.ModelAdmin):
