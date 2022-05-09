@@ -13,7 +13,7 @@ class CustomUserAdmin(UserAdmin):
         'email', 'is_staff', 'is_active',
     )
     list_filter = (
-        'is_staff', 'is_active'
+        'first_name', 'email', 'is_staff', 'is_active',
     )
     fieldsets = (
         (None, {

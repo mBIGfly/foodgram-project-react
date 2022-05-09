@@ -34,7 +34,7 @@ class RecipeAdmin(AdminImageMixin, admin.ModelAdmin):
     search_fields = ('name', 'author__username', 'author__last_name',
                      'tags__name', 'tags__slug', 'author__first_name')
     inlines = (IngredientRecipeRelationAdminInline,)
-
+    list_filter = ('name', 'author__username', 'tags__name')
     fieldsets = (
         ('Основнвые данные', {
             'fields': (
