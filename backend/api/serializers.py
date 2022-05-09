@@ -96,18 +96,6 @@ class RecipeSerializerList(serializers.ModelSerializer):
             IngredientRecipeRelation.objects.filter(recipe=obj).all(),
             many=True).data
 
-    def validate_ingredients(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'Нужен как минимум один ингредиент'
-            )
-        list_of_id = [_['ingredients']['id'] for _ in value]
-        if len(list_of_id) != len(set(list_of_id)):
-            raise serializers.ValidationError(
-                'Ингредиенты не должны дублироваться'
-            )
-        return value
-
     class Meta:
         exclude = ('created', )
         model = Recipe
@@ -166,6 +154,18 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         return self.__is_recipe(obj, Favorite)
+
+    def validate_ingredients(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Нужен как минимум один ингредиент'
+            )
+        list_of_id = [_['ingredients']['id'] for _ in value]
+        if len(list_of_id) != len(set(list_of_id)):
+            raise serializers.ValidationError(
+                'Ингредиенты не должны дублироваться'
+            )
+        return value
 
     @transaction.atomic
     def create(self, validated_data):
