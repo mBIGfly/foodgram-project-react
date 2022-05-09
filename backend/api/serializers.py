@@ -2,6 +2,7 @@ import djoser.serializers
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 
@@ -155,24 +156,35 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         return self.__is_recipe(obj, Favorite)
 
-    def validate(self, data):
-        ingredients = data.get('ingredients')
-        ingredients_set = set()
-        for ingredient in ingredients:
-            if int(ingredient.get('amount')) <= 0:
-                raise serializers.ValidationError(
-                    ('Убедитесь, что значение количества '
-                     'ингредиента больше 0')
-                )
-            ing_id = ingredient.get('id')
-        for ing_id in ingredients_set:
-            if ing_id in ingredients_set:
-                raise serializers.ValidationError(
-                    'Ингредиент в рецепте не должен повторяться.'
-                )
-        ingredients_set.add(ing_id)
-        data['ingredients'] = ingredients
-        return data
+    def validate_ingredients(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Нужен как минимум один ингредиент'
+            )
+        list_of_id = [_['ingredients']['id'] for _ in value]
+        if len(list_of_id) != len(set(list_of_id)):
+            raise serializers.ValidationError(
+                'Ингредиенты не должны дублироваться'
+            )
+        return value
+    # def validate(self, data):
+    #     ingredients = data.get('ingredients')
+    #     ingredients_set = set()
+    #     for ingredient in ingredients:
+    #         if int(ingredient.get('amount')) <= 0:
+    #             raise serializers.ValidationError(
+    #                 ('Убедитесь, что значение количества '
+    #                  'ингредиента больше 0')
+    #             )
+    #         ing_id = ingredient.get('id')
+    #     for ing_id in ingredients_set:
+    #         if ing_id in ingredients_set:
+    #             raise serializers.ValidationError(
+    #                 'Ингредиент в рецепте не должен повторяться.'
+    #             )
+    #     ingredients_set.add(ing_id)
+    #     data['ingredients'] = ingredients
+    #     return data
 
     @transaction.atomic
     def create(self, validated_data):
