@@ -159,7 +159,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         method = self.context.get('request').method
         author = self.context.get('request').user
         recipe_name = data.get('name')
-        ingredients = data.get('ingredients')
+        ingredients = self.data.get('ingredients')
         tags = self.initial_data.get('tags')
 
         if method in ('POST', 'PUT'):
