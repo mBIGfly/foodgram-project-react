@@ -186,7 +186,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             ).save()
         return obj
 
-    @ transaction.atomic
+    @transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')

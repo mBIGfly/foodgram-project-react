@@ -96,11 +96,11 @@ class IngredientRecipeRelation(models.Model):
     class Meta:
         verbose_name = 'Ингредиенты для рецепта'
         verbose_name_plural = 'Ингредиенты для рецепта'
-        constraints = [
-            models.UniqueConstraint(
-                fields=('recipe', 'ingredient'),
-                name='Unique ingredient for recipe')
-        ]
+        # constraints = [
+        #     models.UniqueConstraint(
+        #         fields=('recipe', 'ingredient'),
+        #         name='Unique ingredient for recipe')
+        # ]
 
     def __str__(self):
         return '{} ({})'.format(self.ingredient.name, self.recipe.name)
