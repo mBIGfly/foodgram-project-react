@@ -192,7 +192,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 recipe=instance).all(), many=True).data
         return representation
 
-    def validate_data(self, data):
+    def validate(self, data):
         method = self.context.get('request').method
         author = self.context.get('request').user
         recipe_name = data.get('name')
