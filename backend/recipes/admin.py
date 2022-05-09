@@ -30,7 +30,7 @@ class IngredientRecipeRelationAdminInline(admin.TabularInline):
 
 
 class RecipeAdmin(AdminImageMixin, admin.ModelAdmin):
-    list_display = ('name', 'author', 'tags', 'favorites')
+    list_display = ('name', 'author', 'tags')
     search_fields = ('name', 'author__username', 'author__last_name',
                      'tags__name', 'tags__slug', 'author__first_name')
     inlines = (IngredientRecipeRelationAdminInline,)
