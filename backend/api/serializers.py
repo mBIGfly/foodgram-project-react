@@ -159,20 +159,28 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
-        amounts = ingredients(ingredients)
-        recipe.ingredients.set(amounts)
-        recipe.tags.set(tags)
-
-        return recipe
+        obj = Recipe.objects.create(**validated_data)
+        obj.tags.set(tags)
+        for ingredient in ingredients:
+            IngredientRecipeRelation.objects.create(
+                recipe=obj, ingredient=ingredient.get('ingredient'),
+                amount=ingredient['amount']
+            ).save()
+        return obj
 
     @ transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        amounts = ingredients(ingredients)
-        instance.ingredients.set(amounts)
+        super().update(instance, validated_data)
         instance.tags.set(tags)
+        instance.image = validated_data.get('image', instance.image)
+        instance.ingredients.clear()
+        for ingredient in ingredients:
+            IngredientRecipeRelation.objects.create(
+                recipe=instance, ingredient=ingredient.get('ingredient'),
+                amount=ingredient['amount']
+            ).save()
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
