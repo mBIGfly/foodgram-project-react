@@ -9,7 +9,6 @@ from recipes.models import (
     ShoppingCart,
     Subscription,
     Tag,
-    TagInRecipe,
 )
 
 
@@ -31,7 +30,7 @@ class IngredientRecipeRelationAdminInline(admin.TabularInline):
 
 
 class RecipeAdmin(AdminImageMixin, admin.ModelAdmin):
-    list_display = ('name', 'author', 'favorite_count', 'tag')
+    list_display = ('name', 'author', 'favorite_count', 'tags')
     search_fields = ('name', 'author__username', 'author__last_name',
                      'tags__name', 'tags__slug', 'author__first_name')
     inlines = (IngredientRecipeRelationAdminInline,)
@@ -73,7 +72,6 @@ class IngredeintAdmin(admin.ModelAdmin):
 admin.site.register(Ingredient, IngredeintAdmin)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Tag)
-admin.site.register(TagInRecipe)
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(ShoppingCart, ShoppingCartAdmin)
 admin.site.register(Favorite, FavoriteAdmin)

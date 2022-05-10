@@ -85,17 +85,6 @@ class Recipe(BaseModel):
         return self.name
 
 
-class TagInRecipe(models.Model):
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE
-    )
-    tag = models.ForeignKey(
-        Tag,
-        on_delete=models.CASCADE,
-    )
-
-
 class IngredientRecipeRelation(models.Model):
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE, verbose_name='Рецепт')
