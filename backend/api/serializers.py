@@ -106,7 +106,7 @@ class RecipeCreateIngredientSerializer(serializers.ModelSerializer):
         source='ingredient', queryset=Ingredient.objects.all())
 
     def validate(self, data):
-        ingredients = self.initial_data.get('ingredients', None)
+        ingredients = data.get('ingredients', None)
         ingredients_set = set()
         for ingredient in ingredients:
             if int(ingredient.get('amount')) <= 0:
