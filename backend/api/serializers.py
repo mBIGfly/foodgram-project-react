@@ -157,8 +157,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         ingredients = data.get('ingredients')
+        ingredients_set = set(ingredients[id])
         for ingredient in ingredients:
-            ingredients_set = set()
             if int(ingredient.get('amount')) <= 0:
                 raise serializers.ValidationError(
                     ('Убедитесь, что значение количества '
