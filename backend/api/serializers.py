@@ -155,8 +155,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         return self.__is_recipe(obj, Favorite)
 
-    def validate_ingredients(self, data):
-        ingredients = data.get('ingredients')
+    def validate_ingredients(self, validated_data):
+        ingredients = validated_data.get('ingredients')
         ingredients_set = set()
         for ingredient in ingredients:
             if int(ingredient.get('amount')) <= 0:
@@ -169,9 +169,9 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     'Ингредиент в рецепте не должен повторяться.'
                 )
             ingredients_set.add(ingredient)
-        data['ingredients'] = ingredients
+        validated_data['ingredients'] = ingredients
 
-        return data
+        return validated_data
 
     @transaction.atomic
     def create(self, validated_data):
