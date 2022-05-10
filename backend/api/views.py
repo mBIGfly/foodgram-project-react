@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, permissions, status, viewsets
+from rest_framework import generics, permissions, serializers, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView, Response
 
@@ -65,6 +65,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def validate(self, data):
+        ingredients = data.get('ingredients', None)
+        ingredients_set = set()
+        for ingredient in ingredients:
+            if int(ingredient.get('amount')) <= 0:
+                raise serializers.ValidationError(
+                    ('Убедитесь, что значение количества '
+                     'ингредиента больше 0')
+                )
+            ing_id = ingredient.get('id')
+            if ing_id in ingredients_set:
+                raise serializers.ValidationError(
+                    'Ингредиент в рецепте не должен повторяться.'
+                )
+            ingredients_set.add(ing_id)
+        data['ingredients'] = ingredients
+        return data
 
 
 class SubscriptionsManageView(APIView):
