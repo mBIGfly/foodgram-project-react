@@ -67,7 +67,7 @@ class IngredientRecipeRelationSerializer(serializers.ModelSerializer):
         source='ingredient.measurement_unit')
 
     def validate(self, data):
-        ingredients = data.get('ingredients')
+        ingredients = data.get('ingredients', None)
         ingredients_set = set()
         for ingredient in ingredients:
             if int(ingredient.get('amount')) <= 0:
