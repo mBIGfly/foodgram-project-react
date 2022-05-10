@@ -155,9 +155,9 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         return self.__is_recipe(obj, Favorite)
 
-    def validate(self, data):
-        ingredients = data.get('ingredients')
-        ingredients_set = set(ingredients[id])
+    def validate_ingredients(self, data):
+        ingredients = data.get('ingredients', None)
+        ingredients_set = set(ingredients)
         for ingredient in ingredients:
             if int(ingredient.get('amount')) <= 0:
                 raise serializers.ValidationError(
